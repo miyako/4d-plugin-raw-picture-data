@@ -18,4 +18,4 @@ perhaps useful to extact PICT data without invoking QuickDraw API.
 
 [miyako.github.io](https://miyako.github.io/2020/02/20/4d-plugin-raw-picture-data.html)
 
-https://github.com/miyako/4d-plugin-raw-picture-data/blob/master/raw-picture-data/test/Project/Sources/Methods/TEST.4dm
+[TEST.4dm](https://github.com/miyako/4d-plugin-raw-picture-data/blob/master/raw-picture-data/test/Project/Sources/Methods/TEST.4dm)
