@@ -1,0 +1,16 @@
+{
+    "name": "_o_PICTURE",
+    "id": 20000,
+    "commands": [
+        {
+            "theme": "_o_PICTURE",
+            "syntax": "GET PICTURE DATA(&P;&Y;&Y)",
+            "threadSafe": true
+        },
+        {
+            "theme": "_o_PICTURE",
+            "syntax": "Get picture data for type(&P;&T):O",
+            "threadSafe": true
+        }
+    ]
+}
