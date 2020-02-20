@@ -8,9 +8,3 @@ READ PICTURE FILE:C678($path+"676.pict";$PICT;*)
 GET PICTURE DATA ($PICT;$arrType;$arrData)
 
 $data:=Get picture data for type ($PICT;".pict")
-
-  //this one is for Mac only
-
-$picture:=Create picture from PICT data ($data)
-
-SET PICTURE TO PASTEBOARD:C521($picture)
