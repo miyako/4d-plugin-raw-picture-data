@@ -1,0 +1,15 @@
+.DS_Store
+build/
+test/Data/Logs/
+test/Logs/
+test/userPreferences.*/
+test/Project/DerivedData/
+/_o_PICTURE.dmg
+/_o_PICTURE.zip
+test/Plugins/_o_PICTURE.bundle/Contents/MacOS/
+test/Plugins/_o_PICTURE.bundle/Contents/_CodeSignature/
+test/Plugins/_o_PICTURE.bundle/Contents/CodeResources
+test/Plugins/_o_PICTURE.bundle/Contents/Windows64/*.exp
+test/Plugins/_o_PICTURE.bundle/Contents/Windows64/*.lib
+test/Plugins/_o_PICTURE.bundle/Contents/Windows64/*.iobj
+test/Plugins/_o_PICTURE.bundle/Contents/Windows64/*.ipdb
