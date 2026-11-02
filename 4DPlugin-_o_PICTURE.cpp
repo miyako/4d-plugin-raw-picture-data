@@ -58,7 +58,7 @@ void GET_PICTURE_DATA(PA_PluginParameters params) {
     
     switch (Param3.fType) {
             
-        case eVK_ArrayPicture:
+        case eVK_ArrayBlob:
             break;
         case eVK_Undefined:
             PA_ClearVariable(&Param3);
@@ -92,7 +92,9 @@ void GET_PICTURE_DATA(PA_PluginParameters params) {
                     PA_ResizeArray(&Param2, i);
                     PA_ResizeArray(&Param3, i);
     
-                    PA_Variable element = PA_CreateVariable(eVK_Blob);
+                    /* eVK_Undefined: PA_CreateVariable(eVK_Blob) allocates an
+                       empty handle that PA_SetBlobVariable overwrites unreleased */
+                    PA_Variable element = PA_CreateVariable(eVK_Undefined);
                     PA_SetBlobVariable(&element, (void *)PA_LockHandle(h), PA_GetHandleSize(h));
                     PA_SetBlobInArray(Param3, i, element.uValue.fBlob);
                     PA_UnlockHandle(h);
