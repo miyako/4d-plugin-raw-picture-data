@@ -7,6 +7,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -137,6 +138,46 @@ class SourceTests(unittest.TestCase):
         for key in ("CFBundleShortVersionString", "CFBundleGetInfoString"):
             localized.write_text(original + f'\n"{key}" = "{self.current}";\n')
             self.assert_rejected()
+
+    def test_inline_project_duplicates_rejected_before_any_write(self):
+        project = self.root / source.PROJECT
+        original = source.text(project)
+        for key in source.KEYS:
+            for quoted in (False, True):
+                name = f'"{key}"' if quoted else key
+                for value in (self.current, f'"{self.current}"', self.drift,
+                              f'"{self.drift}"', "$(UNKNOWN)", '"$(UNKNOWN)"'):
+                    duplicate = f"{name} = {value};"
+                    for location in ("after-version", "after-other"):
+                        with self.subTest(key=key, quoted=quoted, value=value,
+                                          location=location):
+                            if location == "after-version":
+                                existing = f"{key} = {self.current};"
+                                mutated = original.replace(
+                                    existing, f"{existing} {duplicate}", 1,
+                                )
+                                self.assertNotEqual(mutated, original)
+                            else:
+                                mutated = original + f'\nOTHER = "unchanged"; {duplicate}\n'
+                            project.write_text(mutated)
+                            with patch.object(Path, "write_bytes") as write:
+                                self.assert_rejected()
+                                write.assert_not_called()
+
+    def test_project_assignment_text_in_comments_and_strings_is_preserved(self):
+        project = self.root / source.PROJECT
+        noise = (
+            '\n/* MARKETING_VERSION = 9.8.7; "CURRENT_PROJECT_VERSION" = 9.8.7; */\n'
+            '// "MARKETING_VERSION" = 9.8.7; CURRENT_PROJECT_VERSION = 9.8.7;\n'
+            'OTHER = "MARKETING_VERSION = 9.8.7; \\"CURRENT_PROJECT_VERSION\\" = 9.8.7;";\n'
+            'MARKETING_VERSION_SUFFIX = unchanged; PREFIX_CURRENT_PROJECT_VERSION = unchanged;\n'
+        ).replace("9.8.7", self.drift)
+        project.write_bytes(project.read_bytes() + noise.encode())
+        before = self.snapshot()
+        new = source.bump("patch", self.root)
+        for name, original in before.items():
+            self.assertEqual((self.root / name).read_bytes(),
+                             original.replace(self.current.encode(), new.encode()))
 
     def test_supported_references_preserved_and_literals_co_bumped(self):
         for reference in source.REFERENCES:

@@ -20,6 +20,10 @@ SETTING_COUNT = 3
 SETTING = re.compile(
     r"(?m)^([ \t]*(MARKETING_VERSION|CURRENT_PROJECT_VERSION)[ \t]*=[ \t]*)([^;\n]*)(;)"
 )
+PROJECT_TOKEN = re.compile(
+    r'/\*.*?\*/|//[^\n]*|"(?:\\.|[^"\\])*"|[^\s"=;{}(),/]+|[^\s]',
+    re.DOTALL,
+)
 REFERENCES = {f"$({key})": key for key in KEYS}
 REFERENCES.update({f"${{{key}}}": key for key in KEYS})
 LOCALIZED_SHORT = re.compile(
@@ -95,8 +99,16 @@ def read(root=Path(".")):
     root = Path(root)
     project = text(root / PROJECT)
     fields = {key: [] for key in KEYS}
+    tokens = [match[0] for match in PROJECT_TOKEN.finditer(project)
+              if not match[0].startswith(("/*", "//"))]
     for key in KEYS:
-        if len(re.findall(rf'(?m)^[ \t]*(?:{key}\b|"{key}")', project)) != SETTING_COUNT:
+        assignments = sum(
+            unquote(token) == key and following == "="
+            for token, following in zip(tokens, tokens[1:])
+        )
+        if assignments != SETTING_COUNT or len(re.findall(
+            rf'(?m)^[ \t]*(?:{key}\b|"{key}")', project
+        )) != SETTING_COUNT:
             raise ValueError(f"Expected three source assignments for {key}")
     for match in SETTING.finditer(project):
         fields[match[2]].append(unquote(match[3].strip()))

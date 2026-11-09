@@ -59,9 +59,10 @@ dependencies, Windows projects, 4D data/schema and counters are not version
 inputs.
 
 Future bumps update only the three explicit source paths above. Strict
-validation rejects drift, duplicate plist/localized keys (quoted, unquoted or
-inline), unsupported serialization, unknown/cyclic references and invalid
-versions **before writing anything**. Supported version references, optional
+validation rejects drift, duplicate plist/localized keys and project version
+assignments (including quoted/unquoted same-line assignments), unsupported
+serialization, unknown/cyclic references and invalid versions **before writing
+anything**. Supported version references, optional
 absent keys, BOMs, CR/LF/CRLF and mixed line endings, modes and unrelated bytes
 are preserved.
 
