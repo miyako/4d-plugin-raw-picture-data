@@ -1,0 +1,36 @@
+name: Ownership
+
+on:
+  push:
+    branches:
+      - master
+      - miyako-raw-picture-ownership-audit
+    paths:
+      - '4D Plugin API/**'
+      - '4DPlugin-_o_PICTURE.*'
+      - '.github/tests/ownership/**'
+      - '.github/tests/test_ownership.py'
+      - '.github/workflows/ownership.yml'
+  pull_request:
+    paths:
+      - '4D Plugin API/**'
+      - '4DPlugin-_o_PICTURE.*'
+      - '.github/tests/ownership/**'
+      - '.github/tests/test_ownership.py'
+      - '.github/workflows/ownership.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  ownership:
+    name: Full-source ownership (ASan + UBSan)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check immutable baseline and actual source without release tools
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: python3 .github/tests/test_ownership.py -v
