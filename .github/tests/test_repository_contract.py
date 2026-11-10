@@ -63,11 +63,30 @@ class RepositoryContractTests(unittest.TestCase):
         ).splitlines()
         allowed = {*map(str, source.SOURCE_PATHS), "README.md",
                    ".github/workflows/bump-version.yml", ".github/workflows/release.yml"}
+        ownership_headers = {
+            "4D Plugin API/Classes/ARRAY_TEXT.h": (
+                b"\tARRAY_TEXT();\n\t~ARRAY_TEXT();\n",
+                b"\tARRAY_TEXT();\n\t~ARRAY_TEXT();\n\n"
+                b"\tARRAY_TEXT(const ARRAY_TEXT&) = delete;\n"
+                b"\tARRAY_TEXT& operator=(const ARRAY_TEXT&) = delete;\n",
+            ),
+            "4D Plugin API/Classes/C_BLOB.h": (
+                b"\t\tC_BLOB();\n\t\t~C_BLOB();\n",
+                b"\t\tC_BLOB();\n\t\t~C_BLOB();\n\n"
+                b"\t\tC_BLOB(const C_BLOB&) = delete;\n"
+                b"\t\tC_BLOB& operator=(const C_BLOB&) = delete;\n",
+            ),
+        }
         for name in paths:
             if name in allowed:
                 continue
             with self.subTest(path=name):
-                self.assertEqual((ROOT / name).read_bytes(), original(name))
+                expected = original(name)
+                if name in ownership_headers:
+                    old, new = ownership_headers[name]
+                    self.assertEqual(expected.count(old), 1)
+                    expected = expected.replace(old, new)
+                self.assertEqual((ROOT / name).read_bytes(), expected)
 
     def test_unmodified_native_steps_and_secret_names(self):
         before = original(".github/workflows/release.yml").decode()

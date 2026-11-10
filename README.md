@@ -5,8 +5,8 @@ _o_PICTURE gives you the bytes stored in a 4D picture exactly as they are, like 
 ## Manual versioning and publication
 
 **Bump version** and **Build** are separate manual Actions workflows. Neither
-pushes, tags nor pull requests start a build. Select the intended branch in
-Actions; all checkouts use the immutable selected `github.sha`.
+pushes, tags nor pull requests start a release build. Select the intended branch
+in Actions; all checkouts use the immutable selected `github.sha`.
 
 1. Run **Bump version** on that branch with `patch`, `minor` or `major`. It
    validates source metadata, makes one source-only commit directly on the
@@ -99,16 +99,20 @@ publication deliberately outside this workflow, or bump source and publish a
 new version. Branch-push verification failures likewise require inspecting the
 remote branch before another bump.
 
-Offline checks (no native tools or publication):
+Offline checks (no release tools or publication; macOS compiles a synthetic host):
 
 ```sh
 actionlint
 PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s .github/tests -v
 ```
 
-The suite uses disposable bare Git repositories, mocked GitHub responses,
+The release tests use disposable bare Git repositories, mocked GitHub responses,
 closed-PATH native command stubs and PowerShell shell fixtures; it never
 executes MSBuild, Xcode, signing, notarization, 4D or real publication.
+The separate **Ownership** workflow compiles an unsigned synthetic host using
+the complete bundled SDK, actual dispatcher and all wrappers with ASan/UBSan.
+It does not build or publish a plugin bundle. See the
+[ownership inventory, contracts, regression evidence and limits](.github/tests/ownership/README.md).
 
 | Command | Returns | Purpose |
 |---|---|---|
